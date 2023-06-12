@@ -29,7 +29,7 @@ namespace UrlShortener.Controllers
         {
             if (!IdRegex().IsMatch(id)) return BadRequest("ID is not valid");
             var link = _db.Links.AsEnumerable().FirstOrDefault(_ => _.Id.ToString("N") == id);
-            return link != null ? Redirect(link.Href) : NotFound("Link was not found");
+            return link != null ? Redirect(link.Href) : NotFound("ID was not found");
         }
 
         [HttpPost]
