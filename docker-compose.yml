@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: urlshortener
+  adminer:
+    image: adminer:latest
+    ports:
+      - '8080:8080'
+  urlshortener:
+    image: ${DOCKER_REGISTRY-}urlshortener
+    restart: always
+    build:
+      context: .
+      dockerfile: UrlShortener/Dockerfile
