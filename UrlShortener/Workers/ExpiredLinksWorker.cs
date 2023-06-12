@@ -54,12 +54,13 @@ namespace UrlShortener.Workers
             await Task.Delay((int)(newDay - now).TotalMilliseconds, cancellationToken);
         }
 
-        private Task CleanupLinks()
+        private async Task CleanupLinks()
         {
             using var db = _scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-            return db.Links
+            await db.Links
                 .Where(_ => _.CreatedAt.AddDays(1) < DateTime.UtcNow)
                 .ExecuteDeleteAsync();
+            await db.SaveChangesAsync();
         }
     }
 }
