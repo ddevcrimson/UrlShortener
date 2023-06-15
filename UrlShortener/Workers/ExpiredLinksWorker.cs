@@ -1,26 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UrlShortener.Models;
+﻿using UrlShortener.Models;
+using UrlShortener.Services;
 
 namespace UrlShortener.Workers
 {
     public class ExpiredLinksWorker : IHostedService
     {
-        private IServiceScope _scope;
+        private ExpiredLinksWorkerConfiguration _conf;
         private ILogger<ExpiredLinksWorker> _logger;
-        private CancellationTokenSource _source;
-        private Task _task;
+        private CancellationTokenSource? _source;
+        private IServiceProvider _provider;
 
-        public ExpiredLinksWorker(IServiceProvider provider, ILogger<ExpiredLinksWorker> logger)
+        public ExpiredLinksWorker(ILogger<ExpiredLinksWorker> logger, ExpiredLinksWorkerConfiguration conf, IServiceProvider provider)
         {
-            _scope = provider.CreateScope();
+            _provider = provider;
             _logger = logger;
+            _conf = conf;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting");
             _source = new CancellationTokenSource();
-            _task = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 while (true)
                 {
@@ -34,7 +35,10 @@ namespace UrlShortener.Workers
                         return;
                     }
                     _logger.LogInformation("Cleaning up old links");
-                    await CleanupLinks();
+                    using var scope = _provider.CreateScope();
+                    await scope.ServiceProvider
+                        .GetRequiredService<ILinksService>()
+                        .RemoveExpired(_conf.LinkTTL);
                 }
             }, _source.Token);
             return Task.CompletedTask;
@@ -43,24 +47,13 @@ namespace UrlShortener.Workers
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Stopping");
-            _source.Cancel();
+            _source?.Cancel();
             return Task.CompletedTask;
         }
 
-        private async Task WaitNext(CancellationToken cancellationToken)
-        {
-            var now = DateTime.UtcNow;
-            var newDay = DateTime.UtcNow.AddDays(1).Date;
-            await Task.Delay((int)(newDay - now).TotalMilliseconds, cancellationToken);
-        }
-
-        private async Task CleanupLinks()
-        {
-            using var db = _scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-            await db.Links
-                .Where(_ => _.CreatedAt.AddDays(1) < DateTime.UtcNow)
-                .ExecuteDeleteAsync();
-            await db.SaveChangesAsync();
-        }
+        private async Task WaitNext(CancellationToken cancellationToken) => await Task.Delay(
+            (int)_conf.RunEvery.TotalMilliseconds,
+            cancellationToken
+        );
     }
 }

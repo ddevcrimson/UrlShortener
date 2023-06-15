@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using UrlShortener.Models;
 using UrlShortener.Models.Dto;
+using UrlShortener.Services;
+using UrlShortener.Utils;
 
 namespace UrlShortener.Controllers
 {
@@ -14,11 +16,13 @@ namespace UrlShortener.Controllers
     {
         private ApplicationContext _db;
         private IMapper _mapper;
+        private ILinksService _linksService;
 
-        public LinksController(ApplicationContext ctx, IMapper mapper)
+        public LinksController(ApplicationContext ctx, IMapper mapper, ILinksService service)
         {
             _db = ctx;
             _mapper = mapper;
+            _linksService = service;
         }
 
         [HttpGet]
@@ -27,8 +31,8 @@ namespace UrlShortener.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] string id)
         {
-            if (!IdRegex().IsMatch(id)) return BadRequest("ID is not valid");
-            var link = _db.Links.AsEnumerable().FirstOrDefault(_ => _.Id.ToString("N") == id);
+            if (!id.IsValidHexGuid()) return BadRequest("ID is not valid");
+            var link = await _linksService.FirstOrNull(id);
             return link != null ? Redirect(link.Href) : NotFound("ID was not found");
         }
 
@@ -37,17 +41,13 @@ namespace UrlShortener.Controllers
         {
             if (ModelState.IsValid)
             {
-                var action = await _db.Links.AddAsync(_mapper.Map<Link>(linkDto));
-                await _db.SaveChangesAsync();
-                return Ok(action.Entity.Id.ToString("N"));
+                var action = await _linksService.Insert(linkDto);
+                return Ok(action.HexGuid());
             }
             else
             {
                 return BadRequest("\"href\" is not valid url");
             }
         }
-
-        [GeneratedRegex("[a-z0-9]{32}")]
-        private static partial Regex IdRegex();
     }
 }
