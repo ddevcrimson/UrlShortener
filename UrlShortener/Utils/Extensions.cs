@@ -1,5 +1,4 @@
-﻿using System;
-using UrlShortener.Models;
+﻿using UrlShortener.Models;
 using UrlShortener.Workers;
 
 namespace UrlShortener.Utils

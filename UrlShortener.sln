@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrlShortener", "UrlShortene
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{AE8AC564-69C8-4233-9977-0CE5A1CDFCFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Tests", "UrlShortener.Tests\UrlShortener.Tests.csproj", "{B8AD76AD-707F-49DA-ACBB-1B7D2E042E3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AE8AC564-69C8-4233-9977-0CE5A1CDFCFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE8AC564-69C8-4233-9977-0CE5A1CDFCFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE8AC564-69C8-4233-9977-0CE5A1CDFCFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8AD76AD-707F-49DA-ACBB-1B7D2E042E3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8AD76AD-707F-49DA-ACBB-1B7D2E042E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8AD76AD-707F-49DA-ACBB-1B7D2E042E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8AD76AD-707F-49DA-ACBB-1B7D2E042E3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

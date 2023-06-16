@@ -20,7 +20,7 @@ namespace UrlShortener.Workers
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting");
-            _source = new CancellationTokenSource();
+            _source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             Task.Run(async () =>
             {
                 while (true)
